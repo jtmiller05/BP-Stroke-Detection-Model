@@ -1,11 +1,12 @@
 # neural_network.py
 
+import logging
+
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-import numpy as np
-from tqdm.auto import tqdm
-import logging
+
 from model_base import StrokeModel
 
 logger = logging.getLogger(__name__)

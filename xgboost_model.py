@@ -1,6 +1,8 @@
-import xgboost as xgb
-import numpy as np
 import logging
+
+import numpy as np
+import xgboost as xgb
+
 from model_base import StrokeModel
 
 logger = logging.getLogger(__name__)

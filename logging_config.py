@@ -38,4 +38,3 @@ def setup_logging(log_file='stroke_prediction.log'):
     root_logger.addHandler(console_handler)
 
     return root_logger
-

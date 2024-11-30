@@ -1,8 +1,8 @@
-from neural_network import StrokeNN
-from xgboost_model import StrokeXGBoost
-from model_comparison import ModelComparison
 from data_preprocessing import load_and_preprocess
 from logging_config import setup_logging
+from model_comparison import ModelComparison
+from neural_network import StrokeNN
+from xgboost_model import StrokeXGBoost
 
 if __name__ == "__main__":
     # Set up logging

@@ -1,8 +1,9 @@
-from sklearn.model_selection import train_test_split
 import logging
-from tqdm import tqdm
+
+from sklearn.model_selection import train_test_split
 
 logger = logging.getLogger(__name__)
+
 
 class ModelComparison:
     def __init__(self, models, X, y):
