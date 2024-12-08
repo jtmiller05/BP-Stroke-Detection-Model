@@ -1,3 +1,5 @@
+# data_preprocessing.py
+
 import logging
 
 import numpy as np
@@ -60,6 +62,8 @@ def preprocess_data(df):
     df['age_hypertension'] = df['age'] * df['hypertension']
     df['age_heart_disease'] = df['age'] * df['heart_disease']
     df['bmi_glucose'] = df['bmi'] * df['avg_glucose_level']
+    df['age_bmi'] = df['age'] * df['bmi']  # New interaction feature
+    df['hypertension_heart_disease'] = df['hypertension'] * df['heart_disease']  # New interaction feature
 
     # Ensure all feature columns are float32
     feature_columns = [col for col in df.columns if col != 'stroke']
@@ -75,29 +79,6 @@ def preprocess_data(df):
     # Verify data types
     logger.debug(f"Feature dtypes:\n{X.dtypes}")
     logger.debug(f"Target dtype: {y.dtype}")
-
-    return X, y
-
-
-def load_and_preprocess(file_path):
-    """
-    Load and preprocess the dataset
-    """
-    logger.info(f"Loading data from {file_path}")
-    try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Initial data shape: {df.shape}")
-        logger.debug(f"Initial class distribution:\n{df['stroke'].value_counts(normalize=True)}")
-
-        X, y = preprocess_data(df)
-        logger.info(f"Final data shape: {X.shape}")
-        return X, y
-
-    except Exception as e:
-        logger.error(f"Error loading or preprocessing data: {str(e)}", exc_info=True)
-        raise
-    logger.debug(f"Final features: {X.columns.tolist()}")
-    logger.info(f"Class distribution:\n{y.value_counts(normalize=True)}")
 
     return X, y
 

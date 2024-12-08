@@ -1,3 +1,5 @@
+# xgboost_model.py
+
 import logging
 
 import numpy as np
@@ -16,7 +18,7 @@ class StrokeXGBoost(StrokeModel):
         early_stopping = xgb.callback.EarlyStopping(
             rounds=10,
             save_best=True,
-            metric_name='auc',  # Changed to AUC for better handling of imbalanced data
+            metric_name='auc',
             min_delta=1e-4
         )
 
@@ -26,16 +28,19 @@ class StrokeXGBoost(StrokeModel):
         self.params = params or {
             'objective': 'binary:logistic',
             'eval_metric': ['logloss', 'auc'],
-            'max_depth': 6,
-            'learning_rate': 0.1,
-            'n_estimators': 100,
-            'early_stopping_rounds': 10,
+            'max_depth': 4,
+            'learning_rate': 0.005,  # Reduced learning rate
+            'n_estimators': 2000,   # Increased number of trees
+            'early_stopping_rounds': 20,
             'callbacks': [early_stopping, eval_monitor],
             'scale_pos_weight': 1.0,  # Will be updated during training
-            'min_child_weight': 1,
-            'subsample': 0.8,
-            'colsample_bytree': 0.8,
-            'tree_method': 'hist'  # More efficient tree method
+            'min_child_weight': 2,
+            'subsample': 0.7,
+            'colsample_bytree': 0.7,
+            'gamma': 0.2,            # Regularization parameter
+            'reg_alpha': 0.2,        # L1 regularization
+            'reg_lambda': 1.5,       # L2 regularization
+            'tree_method': 'hist'
         }
 
         logger.info("Initializing XGBoost model")

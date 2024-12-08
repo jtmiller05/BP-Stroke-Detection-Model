@@ -1,6 +1,7 @@
 import logging
 
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,10 @@ class ModelComparison:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, test_size=0.2, random_state=42, stratify=y
         )
+
+        # Apply SMOTE to the training data
+        smote = SMOTE(random_state=42)
+        self.X_train, self.y_train = smote.fit_resample(self.X_train, self.y_train)
 
         logger.info(f"Train set size: {self.X_train.shape}, Test set size: {self.X_test.shape}")
         self.results = {}

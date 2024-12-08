@@ -51,12 +51,14 @@ class NeuralNetworkModule(nn.Module):
         try:
             for i in range(len(sizes) - 1):
                 logger.debug(f"Building layer {i + 1}: {sizes[i]} -> {sizes[i + 1]}")
-                layers.extend([
-                    nn.Linear(sizes[i], sizes[i + 1]),
-                    nn.ReLU() if i < len(sizes) - 2 else nn.Sigmoid(),
-                    nn.BatchNorm1d(sizes[i + 1]) if i < len(sizes) - 2 else nn.Identity(),
-                    nn.Dropout(0.2) if i < len(sizes) - 2 else nn.Identity()
-                ])
+                layers.append(nn.Linear(sizes[i], sizes[i + 1]))
+
+                if i < len(sizes) - 2:
+                    layers.append(nn.ReLU())
+                    layers.append(nn.BatchNorm1d(sizes[i + 1]))
+                    layers.append(nn.Dropout(0.5))  # Increased dropout to reduce overfitting
+                else:
+                    layers.append(nn.Identity())  # Remove activation for output layer
 
             return nn.Sequential(*layers)
 
@@ -65,13 +67,13 @@ class NeuralNetworkModule(nn.Module):
             raise
 
     def forward(self, x):
-        return self.layers(x)
+        return self.layers(x).squeeze()
 
 
 class StrokeNN(StrokeModel):
     """Neural Network model for stroke prediction that implements the StrokeModel interface"""
 
-    def __init__(self, input_size, hidden_sizes=[128, 64, 32], learning_rate=0.001):
+    def __init__(self, input_size, hidden_sizes=[256, 128, 64, 32], learning_rate=0.001):
         super().__init__("Neural Network")
         logger.info("Initializing StrokeNN model")
 
@@ -82,9 +84,11 @@ class StrokeNN(StrokeModel):
             self.network = NeuralNetworkModule(input_size, hidden_sizes)
             self.network.to(self.device)
 
-            # Training components
-            self.criterion = nn.BCELoss()
-            self.optimizer = torch.optim.Adam(self.network.parameters(), lr=learning_rate)
+            # Placeholder for criterion, will be initialized during training
+            self.criterion = None
+            self.optimizer = torch.optim.Adam(
+                self.network.parameters(), lr=learning_rate, weight_decay=1e-5
+            )
             self.best_model_path = 'best_nn_model.pth'
 
             logger.debug(f"Learning rate: {learning_rate}")
@@ -123,6 +127,13 @@ class StrokeNN(StrokeModel):
             X_train, y_train = X[train_indices], y[train_indices]
             X_val, y_val = X[val_indices], y[val_indices]
 
+            # Calculate positive class weight
+            pos_weight = (len(y_train) - y_train.sum()) / y_train.sum()
+            pos_weight = pos_weight.to(self.device)
+
+            # Initialize criterion with pos_weight
+            self.criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+
             train_dataset = TensorDataset(X_train, y_train)
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
             val_dataset = TensorDataset(X_val, y_val)
@@ -140,7 +151,7 @@ class StrokeNN(StrokeModel):
 
                 for batch_X, batch_y in train_loader:
                     self.optimizer.zero_grad()
-                    outputs = self.network(batch_X).squeeze()
+                    outputs = self.network(batch_X)
                     loss = self.criterion(outputs, batch_y)
                     loss.backward()
                     self.optimizer.step()
@@ -151,7 +162,7 @@ class StrokeNN(StrokeModel):
                 val_loss = 0
                 with torch.no_grad():
                     for batch_X, batch_y in val_loader:
-                        outputs = self.network(batch_X).squeeze()
+                        outputs = self.network(batch_X)
                         val_loss += self.criterion(outputs, batch_y).item()
 
                 # Calculate average losses
@@ -159,7 +170,8 @@ class StrokeNN(StrokeModel):
                 avg_val_loss = val_loss / len(val_loader)
 
                 logger.info(
-                    f"Epoch [{epoch + 1}/{epochs}] - Training Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}")
+                    f"Epoch [{epoch + 1}/{epochs}] - Training Loss: {avg_train_loss:.4f}, Validation Loss: {avg_val_loss:.4f}"
+                )
 
                 # Early stopping check
                 if avg_val_loss < best_val_loss:
@@ -171,7 +183,7 @@ class StrokeNN(StrokeModel):
                     patience_counter += 1
                     if patience_counter >= patience:
                         logger.info(f"Early stopping triggered at epoch {epoch + 1}")
-                        self.network.load_state_dict(torch.load(self.best_model_path, weights_only=True))
+                        self.network.load_state_dict(torch.load(self.best_model_path))
                         break
 
             logger.info("Training completed")
@@ -188,10 +200,11 @@ class StrokeNN(StrokeModel):
             X = self._prepare_data(X)
 
             with torch.no_grad():
-                outputs = self.network(X).squeeze()
-                predictions = (outputs > 0.5).cpu().numpy()
+                outputs = self.network(X)
+                probabilities = torch.sigmoid(outputs)
+                predictions = (probabilities > 0.5).cpu().numpy()
 
-            logger.debug(f"Prediction distribution: {np.bincount(predictions)}")
+            logger.debug(f"Prediction distribution: {np.bincount(predictions.astype(int))}")
             return predictions
 
         except Exception as e:
@@ -206,11 +219,13 @@ class StrokeNN(StrokeModel):
             X = self._prepare_data(X)
 
             with torch.no_grad():
-                outputs = self.network(X).squeeze()
-                probabilities = outputs.cpu().numpy()
+                outputs = self.network(X)
+                probabilities = torch.sigmoid(outputs).cpu().numpy()
 
-            logger.debug(f"Probability statistics - Mean: {np.mean(probabilities):.4f}, "
-                         f"Std: {np.std(probabilities):.4f}")
+            logger.debug(
+                f"Probability statistics - Mean: {np.mean(probabilities):.4f}, "
+                f"Std: {np.std(probabilities):.4f}"
+            )
             return probabilities
 
         except Exception as e:
