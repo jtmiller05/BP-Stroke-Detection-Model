@@ -73,7 +73,7 @@ class NeuralNetworkModule(nn.Module):
 class StrokeNN(StrokeModel):
     """Neural Network model for stroke prediction that implements the StrokeModel interface"""
 
-    def __init__(self, input_size, hidden_sizes=[256, 128, 64, 32], learning_rate=0.001):
+    def __init__(self, input_size, hidden_sizes=[256, 128, 64, 32], learning_rate=0.0001):
         super().__init__("Neural Network")
         logger.info("Initializing StrokeNN model")
 
