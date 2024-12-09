@@ -72,8 +72,8 @@ class StrokeXGBoost(StrokeModel):
             )
 
             y_val_pred = model.predict(X_val_fold)
-            fold_accuracy = (y_val_pred == y_val_fold).mean()
-            fold_scores.append(fold_accuracy)
+            fold_f1 = f1_score(y_val_fold, y_val_pred, zero_division=0)
+            fold_scores.append(fold_f1)
 
         return np.mean(fold_scores)
 
@@ -101,15 +101,15 @@ class StrokeXGBoost(StrokeModel):
             }
 
             # Evaluate params using cross-validation
-            accuracy_avg = self._cv_score(X, y, param, n_splits=n_splits)
-            return accuracy_avg
+            f1_avg = self._cv_score(X, y, param, n_splits=n_splits)
+            return f1_avg
 
         study = optuna.create_study(direction='maximize')
         study.optimize(objective, n_trials=n_trials)
 
         logger.info(f"Best trial: {study.best_trial.number}")
         logger.info(f"Best parameters: {study.best_params}")
-        logger.info(f"Best Accuracy score from CV: {study.best_value:.4f}")
+        logger.info(f"Best F1 score from CV: {study.best_value:.4f}")
 
         # Update model parameters with best found parameters
         self.params.update(study.best_params)
