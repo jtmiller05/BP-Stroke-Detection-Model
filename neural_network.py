@@ -73,7 +73,7 @@ class NeuralNetworkModule(nn.Module):
 class StrokeNN(StrokeModel):
     """Neural Network model for stroke prediction that implements the StrokeModel interface"""
 
-    def __init__(self, input_size, hidden_sizes=[256, 128, 64, 32], learning_rate=0.001):
+    def __init__(self, input_size, hidden_sizes=[256, 128, 64, 32], learning_rate=0.0001):
         super().__init__("Neural Network")
         logger.info("Initializing StrokeNN model")
 
@@ -110,6 +110,10 @@ class StrokeNN(StrokeModel):
         except Exception as e:
             logger.error(f"Error preparing data: {str(e)}", exc_info=True)
             raise
+
+    def tune_hyperparameters(self, X_train, y_train, X_val, y_val, n_trials=50):
+        """Tune hyperparameters using Optuna"""
+        raise NotImplementedError("Hyperparameter tuning is not implemented for Neural Networks")
 
     def train(self, X, y, batch_size=128, epochs=1000, validation_split=0.2):
         """Train the neural network"""
