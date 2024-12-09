@@ -14,7 +14,11 @@ class StrokeModel(ABC):
         logger.info(f"Initialized {self.name} model")
 
     @abstractmethod
-    def train(self, X, y):
+    def tune_hyperparameters(self, X, y, n_trials=50):
+        pass
+
+    @abstractmethod
+    def train(self, X, y, X_val=None, y_val=None):
         pass
 
     @abstractmethod

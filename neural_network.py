@@ -111,6 +111,10 @@ class StrokeNN(StrokeModel):
             logger.error(f"Error preparing data: {str(e)}", exc_info=True)
             raise
 
+    def tune_hyperparameters(self, X_train, y_train, X_val, y_val, n_trials=50):
+        """Tune hyperparameters using Optuna"""
+        raise NotImplementedError("Hyperparameter tuning is not implemented for Neural Networks")
+
     def train(self, X, y, batch_size=128, epochs=1000, validation_split=0.2):
         """Train the neural network"""
         logger.info("Starting neural network training")

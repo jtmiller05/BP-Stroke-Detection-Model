@@ -2,6 +2,7 @@ from data_preprocessing import load_and_preprocess
 from logging_config import setup_logging
 from model_comparison import ModelComparison
 from neural_network import StrokeNN
+from knn_model import StrokeKNN
 from xgboost_model import StrokeXGBoost
 
 if __name__ == "__main__":
@@ -18,10 +19,11 @@ if __name__ == "__main__":
         logger.info("Initializing models")
         nn_model = StrokeNN(input_size=X.shape[1])
         xgb_model = StrokeXGBoost()
+        knn_model = StrokeKNN()
 
         # Compare models
         logger.info("Starting model comparison")
-        comparison = ModelComparison([nn_model, xgb_model], X, y)
+        comparison = ModelComparison([knn_model, xgb_model], X, y)
         comparison.train_and_evaluate()
         comparison.print_results()
 

@@ -15,7 +15,7 @@ NUMERIC_COLUMNS = ['age', 'avg_glucose_level', 'bmi']
 CATEGORICAL_COLUMNS = ['gender', 'ever_married', 'work_type', 'Residence_type', 'smoking_status']
 BINARY_COLUMNS = ['hypertension', 'heart_disease', 'stroke']
 INTERACTION_FEATURES = True
-CORRELATION_MATRIX_GENERATION = False
+CORRELATION_MATRIX_GENERATION = True
 QUANTILE_RANGE = (25.0, 75.0)
 STRONG_CORR_THRESHOLD = 0.5
 
@@ -86,7 +86,7 @@ def handle_outliers_and_scale(df, numeric_columns):
         standard_scaler = StandardScaler()
         final_scaled = standard_scaler.fit_transform(robust_scaled)
 
-        df[numeric_columns] = final_scaled
+        df[numeric_columns] = robust_scaled
         scaled_stats = df[numeric_columns].describe()
 
         # Log before/after stats
@@ -215,8 +215,6 @@ def preprocess_data(df):
         'heart_disease',
         'ever_married_No',
         'ever_married_Yes',
-        'age_hypertension',
-        'age_heart_disease'
     ]
 
     X = df[final_features]
