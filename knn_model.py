@@ -52,7 +52,7 @@ class StrokeKNN(StrokeModel):
 
         def objective(trial):
             param = {
-                'n_neighbors': trial.suggest_int('n_neighbors', 3, 50),
+                'n_neighbors': trial.suggest_int('n_neighbors', 1, 50),
                 'weights': trial.suggest_categorical('weights', ['uniform', 'distance']),
                 'p': trial.suggest_int('p', 1, 2)  # 1 = Manhattan, 2 = Euclidean
             }

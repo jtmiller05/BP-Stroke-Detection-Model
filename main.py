@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
         # Compare models
         logger.info("Starting model comparison")
-        comparison = ModelComparison([knn_model, xgb_model], X, y)
+        comparison = ModelComparison([nn_model, knn_model, xgb_model], X, y)
         comparison.train_and_evaluate()
         comparison.print_results()
 

@@ -13,23 +13,23 @@ class ModelComparison:
         self.models = models
         logger.info(f"Initializing model comparison with {len(models)} models")
 
-        logger.debug("Splitting data into train and test sets")
+        # Apply SMOTE to the entire dataset before splitting
+        logger.info("Applying SMOTE before splitting into train/test sets")
+        smote = SMOTE(random_state=50)
+        X_resampled, y_resampled = smote.fit_resample(X, y)
+
+        # Log class distribution after SMOTE on the full dataset
+        self._log_distribution("Post-SMOTE (entire dataset)", y_resampled)
+
+        # Now split the data into train/test
+        logger.debug("Splitting resampled data into train and test sets")
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            X, y, test_size=0.3, random_state=42, stratify=y
+            X_resampled, y_resampled, test_size=0.3, random_state=42, stratify=y_resampled
         )
 
-        # Log initial class distribution in the smaller training set
-        self._log_distribution("Initial training set (pre-SMOTE)", self.y_train)
-
-        # Apply SMOTE to the training data
-        smote = SMOTE(random_state=50)
-        self.X_train, self.y_train = smote.fit_resample(self.X_train, self.y_train)
-
-        # Log class distribution after SMOTE
-        self._log_distribution("After SMOTE", self.y_train)
-
-        # Visualize the distributions
-        # self._plot_distribution_comparison()
+        # Log distributions of the training and test sets
+        self._log_distribution("Final training set distribution", self.y_train)
+        self._log_distribution("Final test set distribution", self.y_test)
 
         logger.info(f"Train set size: {self.X_train.shape}, Test set size: {self.X_test.shape}")
         self.results = {}
@@ -57,8 +57,8 @@ class ModelComparison:
 
             try:
                 # If XGBoost, run hyperparameter tuning on the train/validation split
-                # if model.name == 'XGBoost':
-                #     model.tune_hyperparameters(self.X_train, self.y_train, n_trials=50)
+                if model.name == 'XGBoost' or model.name == 'KNN':
+                    model.tune_hyperparameters(self.X_train, self.y_train, n_trials=50)
 
                 # Training using the entire training set (post-SMOTE)
                 logger.debug(f"Training {model.name}")
