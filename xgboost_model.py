@@ -30,16 +30,15 @@ class StrokeXGBoost(StrokeModel):
             'objective': 'binary:logistic',
             'eval_metric': 'auc',
             'callbacks': [early_stopping, eval_monitor],
-            'max_depth': 4,
-            'learning_rate': 0.005,
-            'min_child_weight': 6,
-            'subsample': 0.74,
-            'colsample_bytree': 0.76,
-            'gamma': 0.18,
-            'reg_alpha': 0.23,
-            'reg_lambda': 0.76,
-            'n_estimators': 100,
-            'tree_method': 'hist'
+            'max_depth': 6,
+            'learning_rate': 0.08301180843236773,
+            'min_child_weight': 5,
+            'subsample': 0.773497427152255,
+            'colsample_bytree': 0.8346406680497622,
+            'gamma': 0.0008755041238292655,
+            'reg_alpha': 0.49454285728674385,
+            'reg_lambda': 6.573982354846514,
+            'n_estimators': 483
         }
 
         self.model = xgb.XGBClassifier(**self.params)

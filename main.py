@@ -26,6 +26,7 @@ if __name__ == "__main__":
         comparison = ModelComparison([nn_model, knn_model, xgb_model], X, y)
         comparison.train_and_evaluate()
         comparison.print_results()
+        comparison.generate_visuals()
 
         logger.info("Model training and evaluation completed successfully")
 

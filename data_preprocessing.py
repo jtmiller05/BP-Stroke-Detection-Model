@@ -86,15 +86,16 @@ def handle_outliers_and_scale(df, numeric_columns):
         standard_scaler = StandardScaler()
         final_scaled = standard_scaler.fit_transform(robust_scaled)
 
-        df[numeric_columns] = robust_scaled
+        df[numeric_columns] = final_scaled
         scaled_stats = df[numeric_columns].describe()
 
         # Log before/after stats
         for column in numeric_columns:
             logger.info(f"\nFeature: {column}")
             logger.info("Before scaling:")
-            logger.info(f"Mean: {original_stats.loc['mean', column]:.3f}, Std: {original_stats.loc['std', column]:.3f}, "
-                        f"Min: {original_stats.loc['min', column]:.3f}, Max: {original_stats.loc['max', column]:.3f}")
+            logger.info(
+                f"Mean: {original_stats.loc['mean', column]:.3f}, Std: {original_stats.loc['std', column]:.3f}, "
+                f"Min: {original_stats.loc['min', column]:.3f}, Max: {original_stats.loc['max', column]:.3f}")
             logger.info("After scaling:")
             logger.info(f"Mean: {scaled_stats.loc['mean', column]:.3f}, Std: {scaled_stats.loc['std', column]:.3f}, "
                         f"Min: {scaled_stats.loc['min', column]:.3f}, Max: {scaled_stats.loc['max', column]:.3f}")
@@ -215,6 +216,11 @@ def preprocess_data(df):
         'heart_disease',
         'ever_married_No',
         'ever_married_Yes',
+        'age_hypertension',
+        'age_heart_disease',
+        'bmi_glucose',
+        'age_bmi',
+        'hypertension_heart_disease'
     ]
 
     X = df[final_features]
